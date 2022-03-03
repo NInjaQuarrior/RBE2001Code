@@ -159,7 +159,7 @@ float getRPM()
  * @param target idk rly know yet. maybe 360 for full rotation //TODO
  * @return true if reached with a deadband of the target
  */
-boolean BlueMotor::moveTo(long target)
+boolean BlueMotor::moveTo(int target)
 {
 
   //  Serial.println(getPosition());

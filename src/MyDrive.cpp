@@ -2,9 +2,14 @@
 #include <MyDrive.h>
 
 //#define PI 3.14159265358979323846
-
+Rangefinder rangefinder(17, 12);
 MyDrive::MyDrive()
 {
+}
+
+void MyDrive::init()
+{
+    rangefinder.init();
 }
 
 /**
@@ -157,10 +162,12 @@ boolean MyDrive::driveTillLine(float speed, float leftSense, float rightSense)
     // if either light sensors og above the dark value
     if (leftSense > LINE_SENSE_BLACK || rightSense > LINE_SENSE_BLACK /*&& error < lineFollowTurnDead*/)
     {
+        setEffort(0);
         return true;
     }
     // keep driving
-    setSpeed(speed);
+
+    chassis.setTwist(10, 0);
     return false;
 }
 
@@ -192,18 +199,24 @@ boolean MyDrive::lineFollowTillLine(float leftSense, float rightSense, float err
  * @param targetDist target distance, same unit as curDist
  * @return true when at target distance
  */
-boolean MyDrive::lineFollowToTargetDistance(float leftSense, float rightSense, float error, float curDist, float targetDist)
+boolean MyDrive::lineFollowToTargetDistance(float error, float curDist, float targetDist)
 {
     // if not in target distance
-    if (curDist <= targetDist)
+    // Serial.println(curDist);
+    // Serial.println(rangefinder.getDistance());
+    if (rangefinder.getDistance() <= targetDist)
     {
         setEffort(0);
         return true;
     }
-    followLine(error);
-    return false;
+    else
+    {
+        followLine(error);
+        return false;
+    }
 }
 
+boolean turned = false;
 /**
  * turn until find a line
  *
@@ -214,10 +227,15 @@ boolean MyDrive::lineFollowToTargetDistance(float leftSense, float rightSense, f
  */
 boolean MyDrive::alignToLine(int direct, float leftSense, float rightSense)
 {
+    // if (turn(direct * PREP_ALIGN_ANGLE, TURN_SPEED_MED))
+    // {
+    //     turned = true;
+    // }
+
     // turn left
     if (direct < 0)
     {
-        // right light sensor found line
+
         if (rightSense > LINE_SENSE_BLACK)
         {
             chassis.setMotorEfforts(0, 0);
@@ -255,100 +273,44 @@ boolean MyDrive::movePanelPickUp(boolean side, float curDist, float leftSense, f
         if (side == true)
         {
             turn(90, TURN_SPEED_MED);
-            movePanelState = GO_ROOF; // TODO test speds
+            movePanelState = GO_ROOF;
+            rangefinder.getDistance();
+            delay(400); // TODO test speds
         }
         else
         {
             turn(-90, TURN_SPEED_MED);
             movePanelState = GO_ROOF;
+            rangefinder.getDistance();
+            delay(400);
         }
+
         break;
     case GO_ROOF:
-        if (lineFollowToTargetDistance(leftSense, rightSense, error, curDist, DIST_FROM_ROOF))
+        if (side == 1)
         {
-            movePanelState = MOVE_PANEL;
+            if (lineFollowToTargetDistance(error, NULL, DIST_FROM_ROOF_RIGHT))
+            {
+                movePanelState = MOVE_PANEL;
+            }
         }
+        else
+        {
+            if (lineFollowToTargetDistance(error, NULL, DIST_FROM_ROOF_LEFT))
+            {
+                movePanelState = MOVE_PANEL;
+            }
+        }
+        //  delay(100);
         break;
     case MOVE_PANEL:
-        if (driveInches(FINAL_ROOF_DRIVE, DRIVE_SPEED_MED))
-        {
-            movePanelState = INIT_TURN;
-            return true;
-        }
-        break;
-    }
-
-    return false;
-}
-
-boolean MyDrive::crossSide(boolean side, float leftSense, float rightSense, float error)
-{
-
-    switch (crossSideState)
-    {
-    case DRIVE_ONE:
-        if (driveInches(12, DRIVE_SPEED_MED))
-        {
-            crossSideState = TURN_ONE;
-        }
-        break;
-    case TURN_ONE:
-        if (side == true)
-        {
-            if (turn(90, TURN_SPEED_MED))
-            {
-                crossSideState = DRIVE_TAPE;
-            }
-        }
-        else
-        {
-            if (turn(-90, TURN_SPEED_MED))
-            {
-                crossSideState = DRIVE_TAPE;
-            }
-        }
-        break;
-    case DRIVE_TAPE:
-        if (driveTillLine(DRIVE_SPEED_FAST, leftSense, rightSense))
-        {
-            crossSideState = CENTER;
-        }
-        break;
-    case CENTER:
-        if (driveInches(CENTER_ROBOT_DIST, DRIVE_SPEED_MED))
-        {
-            crossSideState = TURN_TWOP;
-        }
-        break;
-    case TURN_TWOP:
-        if (side == true)
-        {
-            if (turn(90, TURN_SPEED_MED))
-            {
-                crossSideState = DRIVE_SECT;
-            }
-        }
-        else
-        {
-            if (turn(-90, TURN_SPEED_MED))
-            {
-                crossSideState = DRIVE_SECT;
-            }
-        }
-        break;
-    case DRIVE_SECT:
-        if (lineFollowTillLine(leftSense, rightSense, error))
-        {
-            crossSideState = CENTER_DOS;
-        }
-        break;
-    case CENTER_DOS:
-        if (driveInches(CENTER_ROBOT_DIST, DRIVE_SPEED_MED))
-        {
-            crossSideState = DRIVE_ONE;
-        }
+        setEffort(0);
+        // movePanelState = INIT_TURN;
         return true;
+
+        //  delay(100);
         break;
     }
+
     return false;
 }

@@ -16,7 +16,7 @@ private:
     const int closedVADC = 280;
 
     int prevVADC = 0;
-    const int TOLERANCE = 1;
+    const int TOLERANCE = 0;
 
 public:
     JawServo();

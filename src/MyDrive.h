@@ -2,6 +2,8 @@
 #pragma once
 #include <wpi-32u4-lib.h>
 #include <RemoteConstants.h>
+#include <Rangefinder.h>
+
 //#define PI 3.14159265358979323846
 
 #ifndef MYDRIVE_H
@@ -29,18 +31,18 @@ private:
     const float FIND_BAG_DEAD = 5.0f;
 
     // base follow line speed
-    const float LINE_BASE_SPEED = 50;
+    const float LINE_BASE_SPEED = 40;
 
     // Kp for following the line
-    const float LINE_PROP = .05f;
+    const float LINE_PROP = .04f;
 
     // voltage value for determining if a sensor is over the line
-    const float LINE_SENSE_BLACK = 700;
+    const float LINE_SENSE_BLACK = 680;
 
     // max distance that the ultra will care about while scanning for a bag
     const float MAX_DIST = 25.0f;
 
-    const float DIST_FROM_ROOF = 8.5; // TODO
+    // TODO
     const float FINAL_ROOF_DRIVE = 0;
 
     enum MovePanelState
@@ -62,12 +64,12 @@ private:
         DRIVE_SECT,
         CENTER_DOS
     };
-    CrossSideState crossSideState = DRIVE_ONE;
 
     // end constantsssss+++++++++++++++++++++++++++++++++++++++++++
 
 public:
     MyDrive();
+    void init();
 
     boolean turn(float degrees, float speed);
     void turnContinuous(int direct, float speed);
@@ -79,17 +81,19 @@ public:
     void followLine(float error);
     boolean driveTillLine(float speed, float leftSense, float rightSense);
     boolean lineFollowTillLine(float leftSense, float rightSense, float error);
-    boolean lineFollowToTargetDistance(float leftSense, float rightSense, float error, float curDist, float targetDist);
+    boolean lineFollowToTargetDistance(float error, float curDist, float targetDist);
     boolean alignToLine(int direct, float leftSense, float rightSense);
 
     boolean movePanelPickUp(boolean side, float curDist, float leftSense, float rightSense, float error);
     boolean crossSide(boolean side, float leftSense, float rightSense, float error);
 
+    const float DIST_FROM_ROOF_RIGHT = 3;
+    const float DIST_FROM_ROOF_LEFT = 10;
     // medium drive speed
-    const float DRIVE_SPEED_MED = 7.0f;
+    const float DRIVE_SPEED_MED = 8.0f;
 
     // fast drive speed
-    const float DRIVE_SPEED_FAST = 8.0f;
+    const float DRIVE_SPEED_FAST = 12.0f;
 
     // slow drive speed
     const float DRIVE_SPEED_SLOW = 3.0f;
@@ -97,16 +101,16 @@ public:
     // angle for preparing to align to the line with the light sensors
     const float PREP_ALIGN_ANGLE = 60.0f;
 
-    const float CENTER_ROBOT_DIST = 4.0f;
+    const float CENTER_ROBOT_DIST = 3.0f;
 
     // turn speed in degrees per second medium
-    const float TURN_SPEED_MED = 100.0f;
+    const float TURN_SPEED_MED = 70.0f;
 
     // turn speed in degrees per second
     const float TURN_SPEED_FAST = 270.0f;
 
     // turn speed in degrees per second
-    const float TURN_SPEED_SLOW = 70.0f;
+    const float TURN_SPEED_SLOW = 50.0f;
 
     // turn left
     const int DIR_LEFT = -1;

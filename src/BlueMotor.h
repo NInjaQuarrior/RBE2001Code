@@ -10,20 +10,22 @@ public:
     void setEffort(int effort);
 
     void setEffortNoD(int effort);
-    boolean moveTo(long position);
+    boolean moveTo(int position);
     long getPosition();
     void holdTo(long position);
     void setup();
 
-    const int Side25Place = -9500;
-    const int Side25Prep = -9000;
+    const int Side25Place = -9000;
+    const int Side25Prep = -8000;
     const int Side25Travel = 0;
 
     const int Side45Place = -5000;
-    const int Side45Prep = -6000;
+    const int Side45Prep = -8500;
     const int Side45Travel = 0;
 
-    const int platPlace = 0;
+    const int platPlace = 150;
+
+    const int platPlaceLeft = -600;
 
     void setEffort(int effort, bool clockwise);
 
@@ -38,7 +40,7 @@ public:
     const int ENCB = 1;
     const long DEADBAND = 30;
     const int DEAD_ZONE = 100; // TODO
-    const float kP = 3.15f;
-    const float kPDown = 1.0f;
+    const float kP = 3.5f;
+    const float kPDown = 1.5f;
 };
 #endif
